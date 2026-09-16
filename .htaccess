@@ -1,0 +1,15 @@
+# Centenary Networks — SSPR
+# Basic hardening for shared Xneelo hosting (Apache).
+
+# Force HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Never serve the raw SQL schema or environment-style files over HTTP
+<FilesMatch "\.(sql|md)$">
+  Require all denied
+</FilesMatch>
+
+# Prevent directory listing
+Options -Indexes
