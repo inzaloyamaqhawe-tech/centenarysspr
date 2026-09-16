@@ -12,7 +12,7 @@ Native PHP 8.x, MySQL (PDO), zero frameworks. Built for Xneelo shared hosting.
 | `api-request-reset.php` | POST `{ email }` → sends reset link, always returns generic success |
 | `api-reset-password.php` | POST `{ token, new_password }` → validates token, hashes + saves password |
 | `forgot-password.html` | "Forgot password" form |
-| `reset-password.html` | "Set new password" form (reads `?token=` from the URL) |
+| `reset-password.html` | "Set new password" form (reads `?token=` from the URL, also requires the account's email as a second check) |
 | `generate-hash.php` | One-time testing helper to produce a bcrypt hash — **delete after use** |
 | `css/sspr.css` | Shared styling, matches the Centenary brand theme |
 | `assets/` | Centenary logo + favicon |
@@ -62,6 +62,7 @@ Xneelo's shared hosting `mail()` function works out of the box, but for reliable
 
 ## Security notes already built in
 - Generic response on `api-request-reset.php` regardless of whether the email exists (no user enumeration).
+- `reset-password.html` also requires the account's email address, not just the token from the link. `api-reset-password.php` checks it matches the account the token belongs to (never used as a lookup key) — this stops someone who only got hold of the link itself (a forwarded email, a shared screen, browser history on a shared machine) from completing a reset without also knowing which account it's for. A mismatch returns the same generic "invalid or expired" error as a bad token, so it can't be used to enumerate the correct email either.
 - Cryptographically secure token via `random_bytes(32)`, 30-minute expiry.
 - Token is single-use — cleared immediately on successful reset.
 - Passwords hashed with `password_hash(..., PASSWORD_BCRYPT)`, never stored or logged in plaintext.
